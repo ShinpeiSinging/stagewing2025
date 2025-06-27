@@ -1,22 +1,94 @@
 <!DOCTYPE html>
-<html>
+<html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <title>予約フォーム - ステージウイング</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Musical in Concert 2025 予約フォーム</title>
+  <style>
+    body {
+      font-family: "Helvetica Neue", Arial, sans-serif;
+      max-width: 600px;
+      margin: 2em auto;
+      padding: 2em;
+      background: #f9f9f9;
+      border-radius: 8px;
+      box-shadow: 0 0 12px rgba(0,0,0,0.1);
+    }
+    h1 {
+      font-size: 1.5em;
+      color: #333;
+      margin-bottom: 1em;
+      line-height: 1.4;
+    }
+    label {
+      display: block;
+      margin-top: 1em;
+      color: #555;
+    }
+    input, select, textarea, button {
+      width: 100%;
+      padding: 0.6em;
+      margin-top: 0.5em;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
+    button {
+      background-color: #2d89ef;
+      color: white;
+      font-weight: bold;
+      margin-top: 1.5em;
+      cursor: pointer;
+    }
+    .remarks-note {
+      font-size: 0.85em;
+      color: #888;
+      margin-top: 0.3em;
+    }
+  </style>
 </head>
 <body>
-  <h1>予約フォーム（テスト）</h1>
+  <h1>劇団ステージウイング<br>Musical in Concert 2025<br>予約フォーム</h1>
   <form>
-    <label>お名前：<input type="text" name="name" required></label><br><br>
-    <label>メールアドレス：<input type="email" name="email" required></label><br><br>
-    <label>人数：
-      <select name="count">
+    <label>お名前 <input type="text" name="name" required></label>
+    <label>フリガナ <input type="text" name="kana" required pattern="^[ァ-ヶー]+$" title="カタカナで入力してください"></label>
+    <label>メールアドレス <input type="email" name="email" required></label>
+
+    <label>人数
+      <select name="count" required>
+        <option value="" disabled selected>選択してください</option>
         <option value="1">1人</option>
         <option value="2">2人</option>
         <option value="3">3人</option>
+        <option value="4">4人</option>
+        <option value="5">5人</option>
       </select>
-    </label><br><br>
-    <button type="submit">送信</button>
+    </label>
+
+    <label>公演日時
+      <select name="datetime" required>
+        <option value="" disabled selected>選択してください</option>
+        <option value="6月29日(土)13:30">6月29日(土)13:30</option>
+        <option value="6月30日(日)13:30">6月30日(日)13:30</option>
+      </select>
+    </label>
+
+    <label>紹介者
+      <select name="referrer" required>
+        <option value="" disabled selected>選択してください</option>
+        <option value="001">田中 太郎</option>
+        <option value="002">山田 花子</option>
+        <option value="003">紹介者なし</option>
+      </select>
+    </label>
+
+    <label for="remarks">備考</label>
+    <textarea name="remarks" rows="3"></textarea>
+    <div class="remarks-note">
+      車いすのご利用や遅れてご来場される等あればお知らせください。
+    </div>
+
+    <button type="submit">予約する</button>
   </form>
 </body>
 </html>
