@@ -1,9 +1,8 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <title>劇団ステージウイング予約フォーム</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="utf-8">
+  <title>劇団ステージウイング 予約フォーム</title>
   <style>
     body {
       font-family: "Helvetica Neue", Arial, sans-serif;
@@ -38,9 +37,6 @@
       margin-top: 1.5em;
       cursor: pointer;
     }
-    button:disabled {
-      background-color: #999;
-    }
     .remarks-note {
       font-size: 0.85em;
       color: #888;
@@ -49,10 +45,10 @@
   </style>
 </head>
 <body>
-  <h1>劇団ステージウイング<br/>Musical in Concert 2025<br/>予約フォーム</h1>
+  <h1>劇団ステージウイング<br>Musical in Concert 2025<br>予約フォーム</h1>
   <form id="reservation-form">
     <label>お名前 <input type="text" name="name" required></label>
-    <label>フリガナ <input type="text" name="kana" required pattern="^[ァ-ヶー]+$" title="カタカナで入力してください"></label>
+    <label>フリガナ <input type="text" name="kana" required pattern="^[\u30A0-\u30FFー]+$" title="カタカナで入力してください"></label>
     <label>メールアドレス <input type="email" name="email" required></label>
 
     <label>人数
@@ -79,83 +75,44 @@
     </label>
 
     <label>備考
-      <textarea name="remarks" rows="3" style="resize:vertical"></textarea>
+      <textarea name="remarks" rows="3"></textarea>
       <div class="remarks-note">車いすのご利用や遅れてご来場される等あればお知らせください。</div>
     </label>
 
-    <button type="submit" id="submit-button">予約する</button>
+    <button type="submit">予約する</button>
   </form>
 
   <script>
-    const apiBase = 'https://script.google.com/macros/s/AKfycbyTHnxn4Q_MIE2A4wVTpjqZfn2o55pfVxtRmUSJpUyotg1_GHfMbs6IqPX2o4xwQE8i/exec';
+    const API_URL = 'https://script.google.com/macros/s/AKfycbyKe3rPmizr-Cqo7TWy-DDBY3SYac0TINayEBYyKWuq-ui3f4amvmzTG3k7hKekrsQ1/exec'; // ←ご自身のURLに変更
 
     window.addEventListener('DOMContentLoaded', function () {
-      fetch(apiBase + '?action=events')
-        .then(r => r.json())
-        .then(events => {
-          const sel = document.getElementById('datetime-select');
-          sel.innerHTML = '<option disabled selected>選択してください</option>';
-          events.forEach(ev => {
-            const opt = document.createElement('option');
-            opt.value = ev.datetime;
-            opt.textContent = `${ev.datetime}（残席：${ev.remaining}）`;
-            if (ev.remaining <= 0) opt.disabled = true;
-            sel.appendChild(opt);
-          });
-        });
-
-      fetch(apiBase + '?action=referrers')
-        .then(r => r.json())
-        .then(refs => {
-          const sel = document.getElementById('referrer-select');
-          sel.innerHTML = '<option disabled selected>選択してください</option>';
-          refs.forEach(rf => {
-            const opt = document.createElement('option');
-            opt.value = rf.id;
-            opt.textContent = rf.name;
-            sel.appendChild(opt);
-          });
-        });
-    });
-
-    document.getElementById('reservation-form').addEventListener('submit', function (e) {
-      e.preventDefault();
-      const form = e.target;
-      const formData = {
-        name: form.name.value,
-        kana: form.kana.value,
-        email: form.email.value,
-        count: parseInt(form.count.value, 10),
-        datetime: form.datetime.value,
-        referrer: form.referrer.value,
-        remarks: form.remarks.value
-      };
-
-      const button = document.getElementById('submit-button');
-      button.disabled = true;
-      button.textContent = '送信中...';
-
-      // 満席確認を行うエンドポイントにPOST
-      fetch(apiBase + '?action=reserve', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
-      })
+      // 公演日時を取得
+      fetch(API_URL + '?type=events')
         .then(res => res.json())
-        .then(res => {
-          if (res.status === 'success') {
-            alert('予約が完了しました。確認メールを送信しました。');
-            form.reset();
-          } else {
-            alert('予約できませんでした：' + res.message);
-          }
-          button.disabled = false;
-          button.textContent = '予約する';
-        })
-        .catch(() => {
-          alert('通信エラーが発生しました');
-          button.disabled = false;
-          button.textContent = '予約する';
+        .then(events => {
+          const select = document.getElementById('datetime-select');
+          select.innerHTML = '<option value="" disabled selected>選択してください</option>';
+          events.forEach(event => {
+            const option = document.createElement('option');
+            option.value = event.datetime;
+            option.textContent = event.datetime;
+            select.appendChild(option);
+          });
+        });
+
+      // 紹介者を取得
+      fetch(API_URL + '?type=referrers')
+        .then(res => res.json())
+        .then(referrers => {
+          const select = document.getElementById('referrer-select');
+          select.innerHTML = '<option value="" disabled selected>選択してください</option>';
+          referrers.sort((a, b) => a.kana.localeCompare(b.kana, 'ja'));
+          referrers.forEach(r => {
+            const option = document.createElement('option');
+            option.value = r.id;
+            option.textContent = r.name;
+            select.appendChild(option);
+          });
         });
     });
   </script>
