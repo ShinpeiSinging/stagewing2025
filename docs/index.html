@@ -1,10 +1,22 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html>
 <head>
   <meta charset="UTF-8">
-  <title>StageWing 2025</title>
+  <title>予約フォーム - ステージウイング</title>
 </head>
 <body>
-  <h1>テスト表示：GitHub Pages 有効化確認</h1>
+  <h1>予約フォーム（テスト）</h1>
+  <form>
+    <label>お名前：<input type="text" name="name" required></label><br><br>
+    <label>メールアドレス：<input type="email" name="email" required></label><br><br>
+    <label>人数：
+      <select name="count">
+        <option value="1">1人</option>
+        <option value="2">2人</option>
+        <option value="3">3人</option>
+      </select>
+    </label><br><br>
+    <button type="submit">送信</button>
+  </form>
 </body>
 </html>
