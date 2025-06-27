@@ -2,11 +2,10 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>劇団ステージウイング予約フォーム</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Musical in Concert 2025 予約フォーム</title>
   <style>
     body {
-      font-family: "Helvetica Neue", Arial, sans-serif;
+      font-family: Arial, sans-serif;
       max-width: 600px;
       margin: 2em auto;
       padding: 2em;
@@ -15,47 +14,35 @@
       box-shadow: 0 0 12px rgba(0,0,0,0.1);
     }
     h1 {
-      font-size: 1.5em;
-      color: #333;
+      text-align: center;
     }
     label {
       display: block;
       margin-top: 1em;
-      color: #555;
     }
-    input, select, button, textarea {
+    input, select, textarea, button {
       width: 100%;
-      padding: 0.6em;
-      margin-top: 0.5em;
+      padding: 0.5em;
+      margin-top: 0.3em;
       border: 1px solid #ccc;
       border-radius: 4px;
-      box-sizing: border-box;
     }
     button {
       background-color: #2d89ef;
       color: white;
       font-weight: bold;
-      margin-top: 1.5em;
       cursor: pointer;
-    }
-    button:disabled {
-      background-color: #999;
-    }
-    .remarks-note {
-      font-size: 0.85em;
-      color: #888;
-      margin-top: 0.2em;
+      margin-top: 1.5em;
     }
   </style>
 </head>
 <body>
-  <h1>劇団ステージウイング<br/>Musical in Concert 2025<br/>予約フォーム</h1>
+  <h1>Musical in Concert 2025 予約フォーム</h1>
   <form id="reservation-form">
-    <label>お名前 <input type="text" name="name" required></label>
-    <label>フリガナ <input type="text" name="kana" required pattern="^[ァ-ヶー]+$" title="カタカナで入力してください"></label>
-    <label>メールアドレス <input type="email" name="email" required></label>
-
-    <label>人数
+    <label>お名前：<input type="text" name="name" required></label>
+    <label>フリガナ：<input type="text" name="kana" required pattern="^[ァ-ヶー]+$" title="カタカナで入力してください"></label>
+    <label>メールアドレス：<input type="email" name="email" required></label>
+    <label>人数：
       <select name="count" required>
         <option value="" disabled selected>選択してください</option>
         <option value="1">1人</option>
@@ -65,36 +52,31 @@
         <option value="5">5人</option>
       </select>
     </label>
-
-    <label>公演日時
+    <label>公演日時：
       <select name="datetime" id="datetime-select" required>
         <option value="" disabled selected>読み込み中...</option>
       </select>
     </label>
-
-    <label>紹介者
+    <label>紹介者：
       <select name="referrer" id="referrer-select" required>
         <option value="" disabled selected>読み込み中...</option>
       </select>
     </label>
-
-    <label>備考
-      <textarea name="remarks" rows="3" style="resize:vertical"></textarea>
-      <div class="remarks-note">車いすのご利用や遅れてご来場される等あればお知らせください。</div>
+    <label>備考：
+      <textarea name="remarks" rows="3"></textarea>
     </label>
-
-    <button type="submit" id="submit-button">予約する</button>
+    <button type="submit">予約する</button>
   </form>
 
   <script>
-    const apiBase = 'https://script.google.com/macros/s/【GASのデプロイURL】/exec';
+    const apiBase = 'https://script.google.com/macros/s/【あなたのGASデプロイURL】/exec';
 
     window.addEventListener('DOMContentLoaded', function () {
       fetch(apiBase + '?action=events')
         .then(r => r.json())
         .then(events => {
           const sel = document.getElementById('datetime-select');
-          sel.innerHTML = '<option disabled selected>選択してください</option>';
+          sel.innerHTML = '<option value="" disabled selected>選択してください</option>';
           events.forEach(ev => {
             const opt = document.createElement('option');
             opt.value = ev.datetime;
@@ -102,65 +84,19 @@
             if (ev.remaining <= 0) opt.disabled = true;
             sel.appendChild(opt);
           });
-        })
-        .catch(() => {
-          document.getElementById('datetime-select').innerHTML = '<option disabled>読み込み失敗</option>';
         });
 
       fetch(apiBase + '?action=referrers')
         .then(r => r.json())
         .then(refs => {
           const sel = document.getElementById('referrer-select');
-          sel.innerHTML = '<option disabled selected>選択してください</option>';
+          sel.innerHTML = '<option value="" disabled selected>選択してください</option>';
           refs.forEach(rf => {
             const opt = document.createElement('option');
             opt.value = rf.id;
             opt.textContent = rf.name;
             sel.appendChild(opt);
           });
-        })
-        .catch(() => {
-          document.getElementById('referrer-select').innerHTML = '<option disabled>読み込み失敗</option>';
-        });
-    });
-
-    document.getElementById('reservation-form').addEventListener('submit', function (e) {
-      e.preventDefault();
-      const form = e.target;
-      const formData = {
-        name: form.name.value,
-        kana: form.kana.value,
-        email: form.email.value,
-        count: parseInt(form.count.value, 10),
-        datetime: form.datetime.value,
-        referrer: form.referrer.value,
-        remarks: form.remarks.value
-      };
-
-      const button = document.getElementById('submit-button');
-      button.disabled = true;
-      button.textContent = '送信中...';
-
-      fetch(apiBase, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
-      })
-        .then(res => res.json())
-        .then(res => {
-          if (res.status === 'success') {
-            alert('予約が完了しました。確認メールを送信しました。');
-            form.reset();
-          } else {
-            alert('予約できませんでした：' + res.message);
-          }
-          button.disabled = false;
-          button.textContent = '予約する';
-        })
-        .catch(() => {
-          alert('通信エラーが発生しました');
-          button.disabled = false;
-          button.textContent = '予約する';
         });
     });
   </script>
